@@ -8,6 +8,7 @@ License:        MIT AND GPLv3+
 URL:            http://jontio.zapto.org/hda1/jaero.html
 Source:         https://github.com/jontio/JAERO/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.xz
 Patch0:         bcb5b78c74f06cc878cb347b9f99b08cddfafef4.patch
+Patch1:         fe604fb7e221fc615c0526a48f1f73954d6e70bb.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  libcorrect-devel
@@ -24,12 +25,10 @@ BuildRequires:  pkgconfig(Qt5Widgets)
 BuildRequires:  pkgconfig(libacars)
 BuildRequires:  pkgconfig(vorbis)
 BuildRequires:  kiss-fft-static
-# BuildRequires:  qcustomplot-qt5-devel
+BuildRequires:  qcustomplot-qt5-devel
 
 Requires:       hicolor-icon-theme
 Requires:       unzip
-
-Provides:       bundled(qcustomplot) = 1.3.1
 
 %description
 JAERO is a program that demodulates and decodes Classic Aero ACARS (Aircraft
@@ -51,7 +50,7 @@ rm -rf libacars-*
 rm -rf libcorrect
 rm -rf libogg-*
 rm -rf libvorbis-*
-# rm -rf qcustomplot
+rm -rf qcustomplot
 
 # Unbundle kiss-fft
 %global TYPE double
@@ -71,11 +70,10 @@ sed -i '/LIBACARS_PATH/d' JAERO/JAERO.pro
 # Unbundle libcorrect
 sed -i 's|../libcorrect/include/||' JAERO/jconvolutionalcodec.h
 
-# Unbundle qcustomplot
-# sed -i '/qcustomplot/d' JAERO/JAERO.pro
-# sed -i 's|../../qcustomplot/||' JAERO/gui_classes/qscatterplot.h
-# sed -i 's|../../qcustomplot/||' JAERO/gui_classes/qspectrumdisplay.h
+# Use prope qcustomplot Qt5 lib
+sed -i 's|lqcustomplot|lqcustomplot-qt5|' JAERO/JAERO.pro
 
+# Correct desktop-file
 mv JAERO/JAERO.desktop JAERO/%{name}.desktop
 sed -i "s|/opt/jaero/JAERO|%{_bindir}/%{name}|" JAERO/%{name}.desktop
 sed -i "s|/opt/jaero/jaero.ico|%{name}|" JAERO/%{name}.desktop
@@ -91,14 +89,14 @@ cd JAERO/build
 %make_build
 
 %install
-install -Dpm 0755 JAERO/build/JAERO  %{buildroot}%{_bindir}/jaero
+install -Dpm 0755 JAERO/build/JAERO  %{buildroot}%{_bindir}/%{name}
 install -Dpm 0644 JAERO/images/primary-modem.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 desktop-file-install JAERO/%{name}.desktop
 
 %files
 %license JAERO/LICENSE
 %doc README.md
-%{_bindir}/jaero
+%{_bindir}/%{name}
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 
