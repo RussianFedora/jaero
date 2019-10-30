@@ -61,10 +61,10 @@ sed -i 's|../kiss_fft130/kiss_fft|kiss_fft|' JAERO/fftrwrapper.h
 sed -i 's|../kiss_fft130/kiss_fft|kiss_fft|' JAERO/DSP.h
 
 # Unbundle libacars
-sed -i '/QMAKE_CXXFLAGS_RELEASE/d' JAERO/JAERO.pro
-sed -i '/VORBIS_PATH/d' JAERO/JAERO.pro
-sed -i '/OGG_PATH/d' JAERO/JAERO.pro
-sed -i '/LIBACARS_PATH/d' JAERO/JAERO.pro
+sed -e '/QMAKE_CXXFLAGS_RELEASE/d' \
+    -e '/VORBIS_PATH/d' \
+    -e '/OGG_PATH/d' \
+    -e '/LIBACARS_PATH/d' -i JAERO/JAERO.pro
 
 # Unbundle libcorrect
 sed -i 's|../libcorrect/include/||' JAERO/jconvolutionalcodec.h
@@ -74,8 +74,8 @@ sed -i 's|lqcustomplot|lqcustomplot-qt5|' JAERO/JAERO.pro
 
 # Correct desktop-file
 mv JAERO/JAERO.desktop JAERO/%{name}.desktop
-sed -i "s|/opt/jaero/JAERO|%{_bindir}/%{name}|" JAERO/%{name}.desktop
-sed -i "s|/opt/jaero/jaero.ico|%{name}|" JAERO/%{name}.desktop
+sed -e "s|/opt/jaero/JAERO|%{_bindir}/%{name}|" \
+    -e "s|/opt/jaero/jaero.ico|%{name}|" -i JAERO/%{name}.desktop
 
 # Enable LTO
 echo "QMAKE_CXXFLAGS += -flto
