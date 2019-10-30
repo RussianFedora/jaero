@@ -3,8 +3,7 @@ Version:        1.0.4.11
 Release:        1%{?dist}
 Summary:        A SatCom ACARS demodulator and decoder for the Aero standard
 
-# Bundled qcustomplot is GPLv3+
-License:        MIT AND GPLv3+
+License:        MIT
 URL:            http://jontio.zapto.org/hda1/jaero.html
 Source:         https://github.com/jontio/JAERO/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.xz
 Patch0:         bcb5b78c74f06cc878cb347b9f99b08cddfafef4.patch
