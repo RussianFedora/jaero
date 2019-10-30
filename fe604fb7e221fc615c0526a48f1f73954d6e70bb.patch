@@ -1,0 +1,125 @@
+From fe604fb7e221fc615c0526a48f1f73954d6e70bb Mon Sep 17 00:00:00 2001
+From: jontio <jontio@i4free.co.nz>
+Date: Tue, 29 Oct 2019 07:44:51 +1300
+Subject: [PATCH] unbundle qcustomplot for linux. qcustomplot V1 and V2
+ support.
+
+---
+ JAERO/JAERO.pro                        | 14 +++++++++++---
+ JAERO/gui_classes/qscatterplot.h       |  3 +--
+ JAERO/gui_classes/qspectrumdisplay.cpp |  7 +++++++
+ JAERO/gui_classes/qspectrumdisplay.h   |  2 +-
+ JAERO/mainwindow.cpp                   |  7 ++++++-
+ 5 files changed, 26 insertions(+), 7 deletions(-)
+
+diff --git a/JAERO/JAERO.pro b/JAERO/JAERO.pro
+index 540620b..c92b422 100644
+--- a/JAERO/JAERO.pro
++++ b/JAERO/JAERO.pro
+@@ -60,7 +60,6 @@ SOURCES += main.cpp\
+     coarsefreqestimate.cpp \
+     DSP.cpp \
+     mskdemodulator.cpp \
+-    ../qcustomplot/qcustomplot.cpp \
+     audiomskdemodulator.cpp \
+     gui_classes/console.cpp \
+     gui_classes/qscatterplot.cpp \
+@@ -91,12 +90,10 @@ SOURCES += main.cpp\
+     audiooutdevice.cpp \
+     compressedaudiodiskwriter.cpp
+ 
+-
+ HEADERS  += mainwindow.h \
+     coarsefreqestimate.h \
+     DSP.h \
+     mskdemodulator.h \
+-    ../qcustomplot/qcustomplot.h \
+     audiomskdemodulator.h \
+     gui_classes/console.h \
+     gui_classes/qscatterplot.h \
+@@ -128,6 +125,17 @@ HEADERS  += mainwindow.h \
+     audiooutdevice.h \
+     compressedaudiodiskwriter.h
+ 
++#unbundle qcustomplot for linux.
++#windows qcustomplot is still bundled.
++win32 {
++#message("windows")
++INCLUDEPATH += $$PWD/../qcustomplot/
++SOURCES += ../qcustomplot/qcustomplot.cpp
++HEADERS += ../qcustomplot/qcustomplot.h
++} else {
++#message("not windows")
++LIBS += -lqcustomplot
++}
+ 
+ FORMS    += mainwindow.ui \
+     gui_classes/settingsdialog.ui \
+diff --git a/JAERO/gui_classes/qscatterplot.h b/JAERO/gui_classes/qscatterplot.h
+index c80245d..f1a48df 100644
+--- a/JAERO/gui_classes/qscatterplot.h
++++ b/JAERO/gui_classes/qscatterplot.h
+@@ -4,8 +4,7 @@
+ #include <QObject>
+ #include <complex>
+ #include <QElapsedTimer>
+-
+-#include "../../qcustomplot/qcustomplot.h"
++#include <qcustomplot.h>
+ 
+ typedef std::complex<double> cpx_type;
+ 
+diff --git a/JAERO/gui_classes/qspectrumdisplay.cpp b/JAERO/gui_classes/qspectrumdisplay.cpp
+index 83501af..7d770b8 100644
+--- a/JAERO/gui_classes/qspectrumdisplay.cpp
++++ b/JAERO/gui_classes/qspectrumdisplay.cpp
+@@ -24,9 +24,16 @@ QSpectrumDisplay::QSpectrumDisplay(QWidget *parent)
+     axisRect()->setMargins(QMargins(0,0,1,0));
+ 
+     lockingbwbar = new QCPBars(xAxis, yAxis);
++#if QCUSTOMPLOT_VERSION >= 0x020000
++#else
+     addPlottable(lockingbwbar);
++#endif
++
+     freqmarker = new QCPBars(xAxis, yAxis);
++#if QCUSTOMPLOT_VERSION >= 0x020000
++#else
+     addPlottable(freqmarker);
++#endif
+     freqmarker->setWidth(10);
+     lockingbwbar->setPen(Qt::NoPen);
+     lockingbwbar->setBrush(QColor(10, 140, 70, 80));
+diff --git a/JAERO/gui_classes/qspectrumdisplay.h b/JAERO/gui_classes/qspectrumdisplay.h
+index ad81356..08e23c1 100644
+--- a/JAERO/gui_classes/qspectrumdisplay.h
++++ b/JAERO/gui_classes/qspectrumdisplay.h
+@@ -4,8 +4,8 @@
+ #include <QObject>
+ #include <complex>
+ #include <vector>
++#include <qcustomplot.h>
+ 
+-#include "../../qcustomplot/qcustomplot.h"
+ #include "fftrwrapper.h"
+ 
+ typedef FFTrWrapper<double> FFTr;
+diff --git a/JAERO/mainwindow.cpp b/JAERO/mainwindow.cpp
+index 84392b5..1147c68 100644
+--- a/JAERO/mainwindow.cpp
++++ b/JAERO/mainwindow.cpp
+@@ -877,8 +877,13 @@ void MainWindow::on_actionCleanConsole_triggered()
+ }
+ 
+ void MainWindow::on_comboBoxdisplay_currentIndexChanged(const QString &arg1)
+-{
++{  
++#if QCUSTOMPLOT_VERSION >= 0x020000
++    ui->scatterplot->graph(0)->data().clear();
++#else
+     ui->scatterplot->graph(0)->clearData();
++#endif
++
+     ui->scatterplot->replot();
+     ui->scatterplot->setDisksize(3);
+     if(arg1=="Constellation")
