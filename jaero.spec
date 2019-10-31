@@ -3,9 +3,11 @@ Version:        1.0.4.11
 Release:        2%{?dist}
 Summary:        A SatCom ACARS demodulator and decoder for the Aero standard
 
-License:        MIT
+# LGPLv2+ for JAERO/gui_classes/console.cpp
+License:        MIT and LGPLv2+
 URL:            http://jontio.zapto.org/hda1/jaero.html
-Source:         https://github.com/jontio/JAERO/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.xz
+Source0:        https://github.com/jontio/JAERO/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.xz
+Source1:        %{name}.appdata.xml
 # Fix for Werror=format-security
 Patch0:         bcb5b78c74f06cc878cb347b9f99b08cddfafef4.patch
 # Fix support system qcustomplot
@@ -27,6 +29,7 @@ BuildRequires:  pkgconfig(libacars)
 BuildRequires:  pkgconfig(vorbis)
 BuildRequires:  kiss-fft-static
 BuildRequires:  qcustomplot-qt5-devel
+BuildRequires:  libappstream-glib
 
 Requires:       hicolor-icon-theme
 Requires:       unzip%{?_isa}
@@ -93,6 +96,10 @@ popd
 install -Dpm 0755 JAERO/build/JAERO  %{buildroot}%{_bindir}/%{name}
 install -Dpm 0644 JAERO/images/primary-modem.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 desktop-file-install JAERO/%{name}.desktop
+install -Dpm 0644 %{SOURCE1} %{buildroot}%{_datadir}/metainfo/%{name}.appdata.xml
+
+%check
+appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/%{name}.appdata.xml
 
 %files
 %license JAERO/LICENSE
@@ -100,6 +107,7 @@ desktop-file-install JAERO/%{name}.desktop
 %{_bindir}/%{name}
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
+%{_datadir}/metainfo/%{name}.appdata.xml
 
 %changelog
 * Thu Oct 31 2019 Vasiliy N. Glazov <vascom2@gmail.com> - 1.0.4.11-2

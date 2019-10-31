@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>jaero.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>JAERO</name>
+  <summary>A SatCom ACARS demodulator and decoder for the Aero standard</summary>
+  <description>
+    <p>
+        JAERO is a program that demodulates and decodes Classic Aero ACARS (Aircraft
+        Communications Addressing and Reporting System) messages sent from satellites to
+        aeroplanes (SatCom ACARS), commonly used when planes are beyond VHF range.
+
+        Demodulation is performed using the soundcard.
+
+        Such signals are typically around 1.5Ghz and can be received with a
+        low-gain antenna that can be home-brewed in conjunction with an
+        RTL-SDR dongle.
+    </p>
+  </description>
+  <screenshots>
+      <screenshot type="default">
+          <image>https://github.com/jontio/JAERO/raw/master/images/screenshot-win-main.png</image>
+      </screenshot>
+      <screenshot>
+          <image>https://github.com/jontio/JAERO/raw/master/images/screenshot-win-planelog.png</image>
+      </screenshot>
+  </screenshots>
+  <url type="homepage">http://jontio.zapto.org/hda1/jaero.html</url>
+</component>
