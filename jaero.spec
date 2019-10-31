@@ -1,12 +1,14 @@
 Name:           jaero
 Version:        1.0.4.11
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A SatCom ACARS demodulator and decoder for the Aero standard
 
 License:        MIT
 URL:            http://jontio.zapto.org/hda1/jaero.html
 Source:         https://github.com/jontio/JAERO/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.xz
+# Fix for Werror=format-security
 Patch0:         bcb5b78c74f06cc878cb347b9f99b08cddfafef4.patch
+# Fix support system qcustomplot
 Patch1:         fe604fb7e221fc615c0526a48f1f73954d6e70bb.patch
 
 BuildRequires:  gcc-c++
@@ -27,7 +29,7 @@ BuildRequires:  kiss-fft-static
 BuildRequires:  qcustomplot-qt5-devel
 
 Requires:       hicolor-icon-theme
-Requires:       unzip
+Requires:       unzip%{?_isa}
 
 %description
 JAERO is a program that demodulates and decodes Classic Aero ACARS (Aircraft
@@ -55,22 +57,21 @@ rm -rf qcustomplot
 %global TYPE double
 echo "INCLUDEPATH += %{_includedir}/kissfft" >> JAERO/JAERO.pro
 echo "LIBS += -lkiss_fft_%{TYPE} -lkiss_fftnd_%{TYPE} -lkiss_fftndr_%{TYPE} -lkiss_fftr_%{TYPE} -lkiss_kfc_%{TYPE}" >> JAERO/JAERO.pro
-sed -i '/kiss_fft130\/kiss_fft/d' JAERO/JAERO.pro
 sed -i 's|../kiss_fft130/kiss_fft|kiss_fft|' JAERO/fftwrapper.h
 sed -i 's|../kiss_fft130/kiss_fft|kiss_fft|' JAERO/fftrwrapper.h
 sed -i 's|../kiss_fft130/kiss_fft|kiss_fft|' JAERO/DSP.h
 
 # Unbundle libacars
+# Use prope qcustomplot Qt5 lib
 sed -e '/QMAKE_CXXFLAGS_RELEASE/d' \
     -e '/VORBIS_PATH/d' \
     -e '/OGG_PATH/d' \
-    -e '/LIBACARS_PATH/d' -i JAERO/JAERO.pro
+    -e '/LIBACARS_PATH/d' \
+    -e 's|lqcustomplot|lqcustomplot-qt5|' \
+    -e '/kiss_fft130\/kiss_fft/d' -i JAERO/JAERO.pro
 
 # Unbundle libcorrect
 sed -i 's|../libcorrect/include/||' JAERO/jconvolutionalcodec.h
-
-# Use prope qcustomplot Qt5 lib
-sed -i 's|lqcustomplot|lqcustomplot-qt5|' JAERO/JAERO.pro
 
 # Correct desktop-file
 mv JAERO/JAERO.desktop JAERO/%{name}.desktop
@@ -83,9 +84,10 @@ QMAKE_LFLAGS_RELEASE += -flto" >> JAERO/JAERO.pro
 
 %build
 mkdir JAERO/build
-cd JAERO/build
-%{qmake_qt5} ..
-%make_build
+pushd JAERO/build
+    %{qmake_qt5} ..
+    %make_build
+popd
 
 %install
 install -Dpm 0755 JAERO/build/JAERO  %{buildroot}%{_bindir}/%{name}
@@ -100,5 +102,8 @@ desktop-file-install JAERO/%{name}.desktop
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 
 %changelog
+* Thu Oct 31 2019 Vasiliy N. Glazov <vascom2@gmail.com> - 1.0.4.11-2
+- Small spec improvments
+
 * Thu Oct 24 2019 Vasiliy N. Glazov <vascom2@gmail.com> - 1.0.4.11-1
 - Initial release for Fedora
